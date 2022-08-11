@@ -1,0 +1,272 @@
+#  ██   ████
+# ░██  ░██░
+# ░██ ██████ ██████  █████
+# ░██░░░██░ ░░██░░█ ██░░░██
+# ░██  ░██   ░██ ░ ░██  ░░
+# ░██  ░██   ░██   ░██   ██
+# ███  ░██  ░███   ░░█████
+#░░░   ░░   ░░░     ░░░░░
+
+# To get image previews, you need these 4 steps:
+# 1. Install ueberzug
+# 2. The previewer file (~/.config/lf/previewer for me), must have a command
+#    similar to mine to generate ueberzug images.
+# 3. A `set cleaner` line as below is a cleaner script.
+# 4. lf should be started through a wrapper script (~/.local/bin/lfub for me)
+#    that creates the environment for ueberzug. This command can be be aliased
+#    in your shellrc (`alias lf="lfub").
+
+# Main options
+set shellopts '-eu'
+set ifs "\n"
+set icons
+set period 1
+#set relativenumber
+#set number
+set hidden!
+set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
+set cleaner '~/.config/lf/cleaner'
+set previewer '~/.config/lf/previewer'
+set promptfmt "
+\033[48;2;35;38;39;38;2;28;220;156m  
+\033[38;2;35;38;39;48;2;202;31;31m
+\033[38;2;202;31;31;48;2;40;47;62m
+\033[38;2;255;255;255m %w 
+\033[38;2;40;47;62;48;2;58;67;89m
+\033[38;2;255;255;255m %f 
+\033[;38;2;58;67;89;49m\033[m"
+set incsearch
+set incfilter
+#set globsearch on
+set ratios 2:3:4 # 2:3:7:7
+set truncatechar "…"
+set waitmsg "\033[1;31m⏎\033[m"
+set timefmt "02/01/2006 15:04:05 "
+set infotimefmtnew '02/01 15:04'
+set infotimefmtold '02/01/06'
+set dircounts
+set tabstop 4
+set shell "zsh"
+set scrolloff 5
+set wrapscroll
+
+source '~/.config/lf/opener'
+
+cmd mkdir $mkdir -p "$(echo $* | tr ' ' '\ ')"
+cmd trash %trash-put $fx
+
+
+cmd delete ${{
+	# Bug: it doesn't work with multiple files selected
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	printf -- "%s\n" $fx | sed 's|'"$HOME"'||'
+	printf "\t\033[1;33m¿Remover? \033[37m[\033[32ms\033[37m/\033[31mN\033[37m]\033[m "
+	read -r REPLY
+	case "$REPLY" in
+		[yYsS]) rm -rf -- $fx ;;
+	esac
+}}
+
+
+cmd chmodx &{{
+	chmod u+x $fx
+	lf -remote "send $id reload"
+}}
+
+
+cmd shred ${{
+	# TODO:
+	# handle multiple files with shred or rshred
+	# for files or directories respectively (with array/positional parameters)
+	# Al parecer hay algunos bugs luego del primer despedazo no se puede despedazar más? revisar luego
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	printf -- "%s\n" $fx | sed 's|'"$HOME"'||'
+	# Mejorar el prompteo, que sea más cuidadoso
+	printf "\t\033[1;34m¿Despedazar? \033[37m[\033[32ms\033[37m/\033[31mN\033[37m]\033[m "
+	read -r REPLY
+	case "$REPLY" in
+		[yYsS])
+			for f in $fx; do
+				if [ -f "$f" ]; then
+					shred -u -n 3 "$f" >/dev/null 2>&1 &
+					# TODO: Poner un máximo número de trabajos
+				elif [ -d "$f" ]; then
+					rshred -fdu "$f"
+				fi
+			done
+		;;
+	esac
+}}
+
+
+cmd extract ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	printf -- "%s\n" $fx
+	printf "\t\033[1;34m¿Extraer? \033[37m[\033[32ms\033[37m/\033[31mN\033[37m]\033[m "
+	read -r REPLY
+	case "$REPLY" in
+		[yYsS]) aunpack $fx ;;
+	esac
+}}
+
+
+cmd moveto ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	clear
+	echo "¿A dónde mover?"
+	if dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' "${XDG_CONFIG_HOME:-"$HOME/.config"}/shell/bm-dirs" \
+			| fzf \
+			| sed 's|~|$HOME|'
+		)"
+	then
+		for x in $fx; do
+			eval mv -iv \"$x\" \"$dest\"
+		done &&
+			notify-send "lf" "🚚 Fichero(s) movidos a $dest"
+	fi
+}}
+
+
+cmd copyto ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	clear
+	echo "¿A dónde copiar?"
+	dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' "${XDG_CONFIG_HOME:-"$HOME/.config"}/shell/bm-dirs" \
+		| fzf \
+		| sed 's|~|$HOME|')" &&
+	for x in $fx; do
+		eval cp -ivr \"$x\" \"$dest\"
+	done &&
+	notify-send "lf" "📋 Fichero(s) copiados a $dest"
+}}
+
+
+cmd zlua %{{
+	lf -remote "send ${id} cd '$(z.lua -e $*)'"
+}}
+
+
+cmd zlua_i ${{
+	dir=$(z.lua -l "$@" \
+		| fzf --nth 2.. --tac +s -e \
+			--header "Directorios frecientes" --header-first \
+			--preview "lsd --color always --icon always --tree --depth 3 --group-dirs first {+2} 2>/dev/null" \
+		| awk '{print substr($0, index($0,$2))}'
+	)
+	lf -remote "send ${id} cd '${dir}'"
+}}
+
+
+cmd setbg "$1"
+
+# Mapeos de teclas
+
+# Movement
+map k up
+map l down
+map j updir
+map ñ open
+map h read
+map { half-up
+map } half-down
+map <c-n> down
+map <c-p> up
+
+# File name search
+# Dependency: my 'ffd' script which uses:
+# - fd or find, fzf, tput; bat and lsd (for previews)
+map -     $lf -remote "send $id select '$(ffd -p --depth 1 +m)'"
+map <a--> $lf -remote "send $id select '$(ffd -p --depth 2 +m)'"
+map <a-_> $lf -remote "send $id select '$(ffd -p --depth 3 +m)'"
+map _     $lf -remote "send $id select '$(ffd -p +m)'"
+map f  search
+map F  search-back
+map zf find
+map zF find-back
+
+# File content search
+# Dependency: my 'rgfzf' script which uses:
+# - bash, rg or rga (which has other optional deps), fzf; bat (for previews)
+map rg $lf -remote "send $id select '$(rgfzf -p)'"
+map rG $lf -remote "send $id select '$(rgfzf -p --depth 1)'"
+map rf $lf -remote "send $id select '$(rgfzf -dp)'"
+map rF $lf -remote "send $id select '$(rgfzf -dp --depth 1)'"
+map ra $lf -remote "send $id select '$(rgfzf -dp --rg=rga --depth 1 -s 0.3)'"
+map rA $lf -remote "send $id select '$(rgfzf -dp --rg=rga -s 0.8)'"  # Can be very CPU intensive, use with care
+
+# Main maps
+map d
+map zz push :zlua<space>
+map <a-z> zlua_i
+map dd cut
+map D delete
+map <a-d> trash
+map <a-D> shred
+map E extract
+#map C copyto
+#map M moveto
+map <a-n> push :mkdir<space>
+map <a-t> push $touch<space>
+map <a-r> reload
+map <enter> shell
+map x $$f
+map X !$f
+map <a-x> chmodx
+map <a-X> $setbg $f
+map o &mimeopen $f
+map O $mimeopen --ask $f
+map gr cd /
+map gt cd /tmp
+
+# Drag commands
+# Dependencies: dragon-drag-and-drop and my 'drag' script which uses it
+
+cmd drag_all &ls -Ah --zero | xargs -d'\0' dragon-drag-and-drop 2>/dev/null
+cmd drag_allx &ls -Ah --zero | xargs -d'\0' dragon-drag-and-drop -a -x 2>/dev/null
+
+map dl drag_all  # Drag from files in current dir
+map dL drag_allx    # Drag all files in current dir and exit
+map ds &dragon-drag-and-drop $fx  # Drag from selected files
+map dS &dragon-drag-and-drop -a -x $fx  # Drag all selected files and exit
+map dm &drag mv "$PWD"  # Drag move into current dir
+map dc &drag cp "$PWD"  # Drag copy into current dir
+map dw &drag wget "$PWD"  # Drag download into current dir
+
+#map J $lf -remote "send $id cd $(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' "${XDG_CONFIG_HOME:-"$HOME/.config"}/shell/bm-dirs" | fzf)"
+
+# Command mode
+cmap <tab> cmd-menu-complete
+cmap <backtab> cmd-menu-complete-back
+cmap <a-j> cmd-left
+cmap <a-ñ> cmd-right
+cmap <a-h> cmd-escape
+cmap <a-I> cmd-home
+cmap <a-A> cmd-end
+cmap <a-,> cmd-delete
+#cmap <a-backspace> cmd-delete  # Bug: No se puede mapear alt + backspace al parecer
+
+# Renaming
+map r
+map A rename  # At the very end
+map c push A<c-u>  # New rename
+map I push A<c-a>  # At the very beginning
+map i push A<a-b><a-b><a-f>  # Before extension
+map a push A<a-b>  # After extension
+map b $vidir   # Bulkrename in $EDITOR, 'vidir' from more-utils
+map B $find | vidir -
+
+map V push $"$EDITOR"<space>
+
+# New forked terminal in current directory
+map W &{ nohup "${TERMINAL:-alacritty}" >/dev/null 2>&1& }
+
+# Copy selected file names
+map Y $printf "%s" "$fx" | xclip -selection clipboard
+
+# Source Bookmarks
+#source "~/.config/lf/shortcutrc"

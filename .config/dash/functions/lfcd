@@ -1,0 +1,12 @@
+lfcd() {
+	_tmp="$(mktemp -q "${XDG_RUNTIME_DIR:-"${TMPDIR:-"/tmp"}"}/lfcd.XXXXXXXX")"
+	lf -last-dir-path="$_tmp" "$@"
+	if [ -f "$_tmp" ]; then
+		_file="$(cat "$_tmp")"
+		if [ -d "$_file" ] && [ "$_file" != "$PWD" ]; then
+			cd -- "$_file"
+		fi
+	fi
+	rm -f -- "$_tmp" >/dev/null 2>&1
+}
+# vim: set ft=sh
