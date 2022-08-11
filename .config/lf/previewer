@@ -74,7 +74,7 @@ mime_preview(){
 		application/json,0)
 			jq -C < "$1"
 			;;
-		application/zip,0)
+		application/zip,0 | application/x-7z-compressed,0 )
 			atool --list -- "$1"
 			;;
 		audio/*,[01] | application/octet-stream,0)

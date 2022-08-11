@@ -58,6 +58,25 @@ cmd open ${{
 			esac
 			;;
 		*)
+			case "$f" in
+				# TODO: redo this with mime types, not extensions
+				*.tar.bz | *.tar.bz2 | *.tbz | \
+				*.tbz2 | *.tar.gz | *.tgz | *.tar.lzma | \
+				*.tar.xz | *.txz | *.zip | *.rar | *.iso)
+					mntdir="$f-archivemount"
+					if ! [ -d "$mntdir" ]; then
+						mkdir -- "$mntdir"
+						archivemount "$f" "$mntdir"
+						printf -- "%s\n" "$mntdir" >> "/tmp/__lf_archivemount_$id"
+					else
+						return 1
+					fi
+					lf -remote "send $id cd '$mntdir'"
+					lf -remote "send $id reload"
+					return
+				;;
+			esac
+
 			# Delegate opening to resource opener
 
 			#pwhich() {
