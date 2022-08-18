@@ -151,6 +151,7 @@ cmd zlua %{{
 
 
 cmd zlua_i ${{
+	# FIXME: no funciona si iniciado desde atajo de teclado, no desde una shell
 	dir=$(z.lua -l "$@" \
 		| fzf --nth 2.. --tac +s -e \
 			--header "Directorios frecientes" --header-first \
@@ -179,12 +180,12 @@ map <c-p> up
 # File name search
 # Dependency: my 'ffd' script which uses:
 # - fd or find, fzf, tput; bat and lsd (for previews)
-map -     $lf -remote "send $id select '$(ffd -p --depth 1 +m)'"
-map <a--> $lf -remote "send $id select '$(ffd -p --depth 2 +m)'"
-map <a-_> $lf -remote "send $id select '$(ffd -p --depth 3 +m)'"
-map _     $lf -remote "send $id select '$(ffd -p +m)'"
-map f  search
-map F  search-back
+map f     $lf -remote "send $id select '$(ffd -p --depth 1 +m)'"
+map <a-f> $lf -remote "send $id select '$(ffd -p --depth 2 +m)'"
+map <a-F> $lf -remote "send $id select '$(ffd -p --depth 3 +m)'"
+map F     $lf -remote "send $id select '$(ffd -p +m)'"
+map -  search
+map _  search-back
 map zf find
 map zF find-back
 

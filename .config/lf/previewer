@@ -16,6 +16,9 @@
 #	- man (troff manuals)
 #	- Other: stat, cut, sha256sum
 
+# Notes:
+#	- If using alacritty's same process: 'alacritty msg create-window', previews only show in first window
+
 set -C -f
 IFS='
 '
