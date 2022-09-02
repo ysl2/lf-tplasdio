@@ -21,6 +21,8 @@ cmd open ${{
 	case "$mime_type" in
 		image/vnd.djvu | application/pdf |  application/postscript | \
 		application/pdf |  application/epub*)
+#			printf ">>%s<<\n" $fx
+#			sleep 3
 			dem "${READER:-zathura}" $fx
 			;;
 		text/* | application/json | application/javascript | \

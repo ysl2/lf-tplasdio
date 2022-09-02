@@ -66,7 +66,7 @@ mime_preview(){
 			man ./ "$1" | col -b
 			;;
 		text/*,0 | */xml,0 | application/javascript,0)
-			bat --terminal-width "$(($4-2))" -f "$1"
+			bat --terminal-width "$(($4-2))" -f "$1" --style=numbers
 			;;
 		application/x-pie-executable,0)
 			objdump -d "$1" -M intel
@@ -80,7 +80,7 @@ mime_preview(){
 		application/zip,0 | application/x-7z-compressed,0 )
 			atool --list -- "$1"
 			;;
-		audio/*,[01] | application/octet-stream,0)
+		audio/*,[01])
 			exiftool -j "$1" | jq -C
 			;;
 		video/webm,0)
@@ -106,8 +106,21 @@ mime_preview(){
 		*opendocument*,0)
 			odt2txt "$1"
 			;;
+		# TODO: add lf command to decrypt it and show the decrypted file in preview window
 		application/pgp-encrypted,0)
-			gpg -d -- "$1"
+			printf "PGP armored ASCII \033[1;31mencrypted\033[m file,\ntry using gpg to decrypt it\n\n"
+			cat "$1"
+			#gpg -d -- "$1"
+			;;
+		application/octet-stream,0)
+			#extension="${1##*.}" extension="${extension%"$1"}"
+			case "${1##*.}" in
+				gpg)
+					printf "OpenPGP \033[1;31mencrypted\033[m file,\ntry using gpg to decrypt it\n\n"
+					;;
+				*) exiftool -j "$1" | jq -C
+					;;
+			esac
 			;;
 		application/vnd.sqlite3,0)
 			# TODO: handle multiple tables, maybe it's better to show tables and columns in a tree format

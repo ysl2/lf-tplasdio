@@ -251,9 +251,10 @@ cmap <a-,> cmd-delete
 #cmap <a-backspace> cmd-delete  # Bug: No se puede mapear alt + backspace al parecer
 
 # Renaming
+map c
 map r
 map A rename  # At the very end
-map c push A<c-u>  # New rename
+map cc push A<c-u>  # New rename
 map I push A<c-a>  # At the very beginning
 map i push A<a-b><a-b><a-f>  # Before extension
 map a push A<a-b>  # After extension
@@ -267,6 +268,9 @@ map W &{ nohup "${TERMINAL:-alacritty}" >/dev/null 2>&1& }
 
 # Copy selected file names
 map Y $printf "%s" "$fx" | xclip -selection clipboard
+
+# Change background image
+map cb &fondo-awesome $f
 
 # Source Bookmarks
 #source "~/.config/lf/shortcutrc"
