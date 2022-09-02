@@ -11,6 +11,12 @@ set -e
 
 cleanup() {
 	exec 3>&-
+	# FIXME:
+	# after SIGINT commands that expected some arguments, previews for that directory
+	# are stuck in "loading", because there's no fifo file to remove or something
+	# Example:
+	# gpg -d  # ← Forgot to type $f for decrypting a file
+	# Ctrl-C  # ← Back to lf, previews are stuck
 	rm "$FIFO_UEBERZUG"
 }
 

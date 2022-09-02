@@ -151,7 +151,6 @@ cmd zlua %{{
 
 
 cmd zlua_i ${{
-	# FIXME: no funciona si iniciado desde atajo de teclado, no desde una shell
 	dir=$(z.lua -l "$@" \
 		| fzf --nth 2.. --tac +s -e \
 			--header "Directorios frecientes" --header-first \
@@ -220,6 +219,11 @@ map <a-x> chmodx
 map <a-X> $setbg $f
 map o &mimeopen $f
 map O $mimeopen --ask $f
+map U glob-unselect *
+map <a-u> glob-select *
+# Remember that 'v' toggles selections
+# TODO:
+# - recursive selection
 map gr cd /
 map gt cd /tmp
 
