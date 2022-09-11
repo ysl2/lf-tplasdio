@@ -60,7 +60,7 @@ mime_preview(){
 			image "$1" "$2" "$3" "$4" "$5" "$1"
 			;;
 		text/html,0)
-			lynx -width="$4" -display_charset=utf-8 -dump "$1"
+			lynx -width="$4" -display_charset=utf-8 -dump -- "$1"
 			;;
 		text/troff,0)
 			man ./ "$1" | col -b
@@ -68,14 +68,23 @@ mime_preview(){
 		text/*,0 | */xml,0 | application/javascript,0)
 			bat --terminal-width "$(($4-2))" -f "$1" --style=numbers
 			;;
-		application/x-pie-executable,0)
+		application/x-pie-executable,0 | application/x-executable,0 | \
+		application/x-sharedlib,0)
 			objdump -d "$1" -M intel
+			#readelf -WCa "$1"
 			;;
 		application/x-executable,0)
 			hexdump -C "$1" | xxd "$1"
 			;;
 		application/json,0)
-			jq -C < "$1"
+			case "${1##*.}" in
+				ipynb)
+					# Needs my fork of ipynb-py-convert
+					ipynb-py-convert --stdout "$1" \
+						| bat --color=always -l python --style=numbers
+					;;
+				*) jq -C < "$1" ;;
+			esac
 			;;
 		application/zip,0 | application/x-7z-compressed,0 )
 			atool --list -- "$1"

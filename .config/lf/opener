@@ -25,6 +25,16 @@ cmd open ${{
 #			sleep 3
 			dem "${READER:-zathura}" $fx
 			;;
+		text/html)
+			case "${f##*.}" in
+				xls)
+					dem localc $f
+					;;
+				*)
+					"${EDITOR:-nvim}" $fx
+					;;
+			esac
+			;;
 		text/* | application/json | application/javascript | \
 		application/pgp-encrypted | inode/x-empty | application/octet-stream )
 			"${EDITOR:-nvim}" $fx
