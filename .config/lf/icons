@@ -59,6 +59,8 @@ fi      📄       # FILE
 *.pyo           " "
 *.pyd           " "
 *.ipynb         " "
+*.nim           "👑"
+*.nims          "👑"
 *.coffee        " "
 *.mustache      " "
 *.hbs           " "
