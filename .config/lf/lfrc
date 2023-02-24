@@ -160,6 +160,15 @@ cmd zlua_i ${{
 	lf -remote "send ${id} cd '${dir}'"
 }}
 
+cmd gsh_i ${{
+	dir=$(g.sh -l "$@" \
+		| fzf --nth 2.. --tac +s -e \
+		--header "Directorios marcados" --header-first \
+		--preview "lsd --color always --icon always --tree --depth 2 --group-dirs first {+2} 2>/dev/null" \
+		| awk '{print substr($0, index($0,$2))}'
+	)
+	lf -remote "send ${id} cd '${dir}'"
+}}
 
 cmd setbg "$1"
 
@@ -170,6 +179,7 @@ map k up
 map l down
 map j updir
 map ñ open
+map Ñ openwith
 map h read
 map { half-up
 map } half-down
@@ -200,8 +210,6 @@ map rA $lf -remote "send $id select '$(rgfzf -dp --rg=rga -s 0.8)'"  # Can be ve
 
 # Main maps
 map d
-map zz push :zlua<space>
-map <a-z> zlua_i
 map dd cut
 map D delete
 map <a-d> trash
@@ -217,6 +225,8 @@ map x $$f
 map X !$f
 map <a-x> chmodx
 map <a-X> $setbg $f
+map C &compila $f  # Compile
+map <a-c> $compila -ir $f  # Interpret/Compile and run
 map o &mimeopen $f
 map O $mimeopen --ask $f
 map U glob-unselect *
@@ -224,8 +234,16 @@ map <a-u> glob-select *
 # Remember that 'v' toggles selections
 # TODO:
 # - recursive selection
+
+# Navigation
+map zz push :zlua<space>
+map <a-z> zlua_i
+map <a-g> gsh_i
+map go gsh_i
 map gr cd /
 map gt cd /tmp
+map gs $lf -remote "send $id cd '$SCRIPTS'"
+
 
 # Drag commands
 # Dependencies: dragon-drag-and-drop and my 'drag' script which uses it

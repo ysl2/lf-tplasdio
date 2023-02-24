@@ -16,13 +16,15 @@ cmd open ${{
 			|| (exec "$@" >/dev/null 2>&1&)
 	}
 
-	mime_type="$(file -b --mime-type -- "$(readlink -f $f)" )"
+	real_f="$(readlink -f $f || realpath $f)" \
+	mime_type="$(\
+		exiftool -s3 -MIMEType "$real_f" \
+			|| file --dereference -b --mime-type -- "$real_f"
+	)"
 
 	case "$mime_type" in
 		image/vnd.djvu | application/pdf |  application/postscript | \
 		application/pdf |  application/epub*)
-#			printf ">>%s<<\n" $fx
-#			sleep 3
 			dem "${READER:-zathura}" $fx
 			;;
 		text/html)
@@ -40,17 +42,32 @@ cmd open ${{
 			"${EDITOR:-nvim}" $fx
 			;;
 		image/svg+xml | image/png | image/jpeg | image/gif )
-			dem "${IMAGE_VIEWER:-vimiv}" $fx
+			case "$(tty)" in
+				"/dev/tty"*) # En tty imágenes pueden ser mostradas con mpv
+					"${MPV:-mpv}" --keep-open $fx
+				;;
+				*) dem "${IMAGE_VIEWER:-vimiv}" $fx ;;
+			esac
 			;;
 		image/x-* )
 			dem "${IMAGE_EDITOR:-gimp}" $fx
 			;;
 		audio/*)
-			"${AUDIO_PLAYER:-"${MPV:-mpv}"}" --audio-display=no $fx
+			case "$(tty)" in
+				"/dev/tty"*) # No demonizar en tty
+					"${AUDIO_PLAYER:-"${MPV:-mpv}"}" --audio-display=no $fx
+				;;
+				*) dem "${TERMINAL:-alacritty}" -e "${AUDIO_PLAYER:-"${MPV:-mpv}"}" --audio-display=no $fx ;;
+			esac
 			;;
 		video/*)
-			# TODO: handle video/webm like previewer
-			dem "${VIDEO_PLAYER:-"${MPV:-mpv}"}" $fx
+			case "$(tty)" in
+				"/dev/tty"*) # No demonizar en tty
+					"${VIDEO_PLAYER:-"${MPV:-mpv}"}" $fx
+				;;
+				# TODO: handle video/webm like previewer
+				*) dem "${VIDEO_PLAYER:-"${MPV:-mpv}"}" $fx
+			esac
 			;;
 		application/vnd.sqlite3)
 			sqlite3 $fx
@@ -101,6 +118,104 @@ cmd open ${{
 				# ${OPENER:-"xdg-open"} $f || "${EDITOR:-"nvim"}" $f
 			done
 			;;
+	esac
+}}
+
+cmd openwith ${{
+
+	dem() {
+		{ setsid -f "$@" >/dev/null 2>&1& } \
+			|| ({ nohup "$@" >/dev/null 2>&1& } &) \
+			|| (exec "$@" >/dev/null 2>&1&)
+	}
+
+	real_f="$(readlink -f $f || realpath $f)" \
+	mime_type="$(\
+		exiftool -s3 -MIMEType "$real_f" \
+			|| file --dereference -b --mime-type -- "$real_f"
+	)"
+
+	# TODO: hacer que se puedan abrir con múltiples a la vez (fzf +m)
+	case "$mime_type" in
+		image/svg+xml | image/png | image/jpeg | image/gif )
+			app=$(fzf <<-EOF
+			vimiv
+			gimp
+			mpv
+			krita
+			inkscape
+			EOF
+			)
+			case "$app" in
+				vimiv) dem vimiv $fx ;;
+				mpv) # Bug: Some JPGs don't show the window unless maximized or fullscreen
+					case "$(tty)" in
+						# Demonizing on tty makes it impossible to quit
+						"/dev/tty"*) "${MPV:-mpv}" --keep-open=yes $fx ;;
+						*) dem "${MPV:-mpv}" --keep-open=yes $fx ;;
+					esac
+				;;
+				gimp) dem gimp $fx ;;
+				krita) dem krita $fx ;;
+				inkscape) dem inkscape $fx ;;
+			esac
+			;;
+		image/x-*)
+			app=$(fzf <<-EOF
+			gimp
+			vimiv
+			mpv
+			EOF
+			)
+			case "$app" in
+				gimp) dem gimp $fx ;;
+				vimiv) dem vimiv $fx ;;
+				mpv)
+					case "$(tty)" in
+						# Demonizing on tty makes it impossible to quit
+						"/dev/tty"*) "${MPV:-mpv}" --keep-open=yes $fx ;;
+						*) dem "${MPV:-mpv}" --keep-open=yes $fx ;;
+					esac
+				;;
+			esac
+			;;
+		audio/*)
+			app=$(fzf <<-EOF
+			mpv (force terminal)
+			mpv (background)
+			mpv (background, only audio)
+			mpv (foreground)
+			mpv (force window)
+			EOF
+			)
+			case "$app" in
+				'mpv (force terminal)')
+				dem "${TERMINAL:-alacritty}" -e "$MPV" --audio-display=no $fx
+				;;
+				'mpv (background)')
+				dem "${MPV:-mpv}" $fx
+				;;
+				'mpv (background, only audio)')
+				dem "${MPV:-mpv}" --audio-display=no $fx
+				;;
+				'mpv (foreground)')
+				"${MPV:-mpv}" $fx
+				;;
+				'mpv (force window)')
+				dem "${MPV:-mpv}" --force-window $fx
+				;;
+			esac
+			;;
+		video/*)
+			app=$(fzf <<-EOF
+			mpv
+			kdenlive
+			EOF
+			)
+			case "$app" in
+				mpv) dem "${MPV:-mpv}" $fx ;;
+				kdenlive) dem "${VIDEO_EDITOR:-kdenlive}" $fx ;;
+			esac
 	esac
 }}
 
