@@ -160,6 +160,14 @@ cmd zlua_i ${{
 	lf -remote "send ${id} cd '${dir}'"
 }}
 
+cmd gsh %{{
+	lf -remote "send ${id} cd '$(g.sh -x $*)'"
+}}
+
+cmd gsh_fuzzy %{{
+	lf -remote "send ${id} cd '$(_GS_GREP='fzf -f' g.sh -l $* | awk 'NR==1{print $2}')'"
+}}
+
 cmd gsh_i ${{
 	dir=$(g.sh -l "$@" \
 		| fzf --nth 2.. --tac +s -e \
@@ -239,6 +247,9 @@ map <a-u> glob-select *
 map zz push :zlua<space>
 map <a-z> zlua_i
 map <a-g> gsh_i
+map zo zlua_i
+map gñ push :gsh<space>
+map gÑ push :gsh_fuzzy<space>
 map go gsh_i
 map gr cd /
 map gt cd /tmp
