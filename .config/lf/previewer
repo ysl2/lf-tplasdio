@@ -4,7 +4,7 @@
 # Dependencies:
 #	- GNU 'file' or similar (file detection)
 #	- bat (text)
-#	- uebergzug (images)
+#	- uebergzug (images, videos, pdf, fonts)
 #	- ffmpegthumbnailer (videos)
 #	- exiftool (metadata/audio, and file detection for .webm files)
 #	- jq (json and metadata)
@@ -113,13 +113,13 @@ mime_preview() {
 			|| ffmpegthumbnailer -i "$1" -o "$CACHE" -s 0
 		image "$CACHE" "$2" "$3" "$4" "$5" "$1"
 	;;
-	(*/pdf,0 | */postscript,0)
+	(*/pdf,0 | */postscript,0)  # .pdf, .ps
 		create_cache "$1"
 		[ -f "$CACHE.jpg" ] \
 			|| pdftoppm -jpeg -f 1 -singlefile "$1" "$CACHE"
 		image "$CACHE.jpg" "$2" "$3" "$4" "$5" "$1"
 	;;
-	(application/font*,0 | application/*opentype,0 | font/sfnt,0)
+	(application/font*,0 | application/*opentype,0 | font/sfnt,0)  # .ttf, .otf
 		create_cache "$1"
 		[ -f "$CACHE.png" ] \
 			|| convert -size "800x800" "xc:#000000" -fill "#ffffff" \
@@ -128,9 +128,27 @@ mime_preview() {
 				"$CACHE.png"
 		image "$CACHE.png" "$2" "$3" "$4" "$5" "$1"
 	;;
-	(*opendocument*,0)
+	(*opendocument*,0) # .odt, .ods
 		odt2txt "$1"
 	;;
+	(*ms-excel,0)  # .xls
+		xls2csv -- "$1" \
+			| bat --terminal-width "$(($4*7/9))" --color=always -l csv --style=numbers
+	;;
+	#(application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)  # .xslx
+		# https://github.com/dilshod/xlsx2csv
+		#xlsx2csv -- "$1"
+	#;;
+	(text/rtf,0 | *msword,0 )  # .doc, doesn't always work
+		catdoc -- "$1"
+	;;
+	#(*wordprocessingml.document|*/epub+zip|*/x-fictionbook+xml)  # .docx
+		#pandoc -s -t markdown -- "$1"
+	#;;
+	#(message/rfc822)
+		# https://github.com/djcb/mu
+		#mu view -- "${FILE_PATH}" && exit 5
+	#;;
 	# TODO: add lf command to decrypt it and show the decrypted file in preview window
 	(application/pgp-encrypted,0)
 		printf "PGP armored ASCII \033[1;31mencrypted\033[m file,\ntry using gpg to decrypt it\n\n"
