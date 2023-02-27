@@ -135,6 +135,26 @@ cmd openwith ${{
 
 	# TODO: hacer que se puedan abrir con múltiples a la vez (fzf +m)
 	case "$mime_type" in
+	( text/* | application/json | application/javascript | \
+	application/pgp-encrypted | inode/x-empty | application/octet-stream )
+		app=$(fzf <<-\EOF
+		$EDITOR
+		$EDITOR (new terminal)
+		nano
+		nano (new terminal)
+		EOF
+		)
+		case "$app" in
+		('$EDITOR') "${EDITOR:-nvim}" $fx ;;
+		('$EDITOR (new terminal)')
+			dem "${TERMINAL:-alacritty}" -e "$EDITOR" $fx
+		;;
+		(nano) nano $fx ;;
+		('nano (new terminal)')
+			dem "${TERMINAL:-alacritty}" -e nano $fx
+		esac
+	;;
+
 	(image/svg+xml | image/png | image/jpeg | image/gif )
 		app=$(fzf <<-EOF
 		vimiv
@@ -183,6 +203,7 @@ cmd openwith ${{
 		mpv (background)
 		mpv (background, only audio)
 		mpv (foreground)
+		mpv (foreground, only audio)
 		mpv (force window)
 		EOF
 		)
@@ -198,6 +219,9 @@ cmd openwith ${{
 		;;
 		('mpv (foreground)')
 		"${MPV:-mpv}" $fx
+		;;
+		('mpv (foreground, only audio)')
+		"${MPV:-mpv}" --audio-display=no $fx
 		;;
 		('mpv (force window)')
 		dem "${MPV:-mpv}" --force-window $fx
