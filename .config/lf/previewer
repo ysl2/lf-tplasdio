@@ -59,6 +59,12 @@ mime_preview() {
 	# because the initial mime_type variable wasn't enough to determine
 	# an adequate preview
 	case "$mime_type","$ran_guard" in
+	(image/svg+xml,0 | image/svg)
+		create_cache "$1"
+		[ -f "$CACHE.png" ] \
+			|| rsvg-convert  -o "$CACHE.png" -a -w "1000" -b '#1f2430' "$1"
+		image "$CACHE.png" "$2" "$3" "$4" "$5" "$1"
+	;;
 	(image/*,0)
 		image "$1" "$2" "$3" "$4" "$5" "$1"
 	;;
