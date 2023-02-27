@@ -23,101 +23,99 @@ cmd open ${{
 	)"
 
 	case "$mime_type" in
-		image/vnd.djvu | application/pdf |  application/postscript | \
-		application/pdf |  application/epub*)
-			dem "${READER:-zathura}" $fx
-			;;
-		text/html)
-			case "${f##*.}" in
-				xls)
-					dem localc $f
-					;;
-				*)
-					"${EDITOR:-nvim}" $fx
-					;;
-			esac
-			;;
-		text/* | application/json | application/javascript | \
-		application/pgp-encrypted | inode/x-empty | application/octet-stream )
-			"${EDITOR:-nvim}" $fx
-			;;
-		image/svg+xml | image/png | image/jpeg | image/gif )
-			case "$(tty)" in
-				"/dev/tty"*) # En tty imágenes pueden ser mostradas con mpv
-					"${MPV:-mpv}" --keep-open $fx
-				;;
-				*) dem "${IMAGE_VIEWER:-vimiv}" $fx ;;
-			esac
-			;;
-		image/x-* )
-			dem "${IMAGE_EDITOR:-gimp}" $fx
-			;;
-		audio/*)
-			case "$(tty)" in
-				"/dev/tty"*) # No demonizar en tty
-					"${AUDIO_PLAYER:-"${MPV:-mpv}"}" --audio-display=no $fx
-				;;
-				*) dem "${TERMINAL:-alacritty}" -e "${AUDIO_PLAYER:-"${MPV:-mpv}"}" --audio-display=no $fx ;;
-			esac
-			;;
-		video/*)
-			case "$(tty)" in
-				"/dev/tty"*) # No demonizar en tty
-					"${VIDEO_PLAYER:-"${MPV:-mpv}"}" $fx
-				;;
-				# TODO: handle video/webm like previewer
-				*) dem "${VIDEO_PLAYER:-"${MPV:-mpv}"}" $fx
-			esac
-			;;
-		application/vnd.sqlite3)
-			sqlite3 $fx
-			;;
+	(application/pdf | application/postscript | image/vnd.djvu |  application/epub*)
+		dem "${READER:-zathura}" $fx
+	;;
+	(text/html)
+		case "${f##*.}" in
+		(xls) dem localc $f ;;
+		(*) "${EDITOR:-nvim}" $fx
+		esac
+	;;
+	(text/troff)
+		case "${f##*.}" in
+		([0-9] | [01]p | [23]*) man $fx ;;
+		(*) "${EDITOR:-nvim}" $fx
+		esac
+	;;
+	( text/* | application/json | application/javascript | \
+	application/pgp-encrypted | inode/x-empty | application/octet-stream )
+		"${EDITOR:-nvim}" $fx
+	;;
+	(image/png | image/jpeg | image/svg+xml | image/gif )
+		case "$(tty)" in
+		("/dev/tty"*) # En tty imágenes pueden ser mostradas con mpv
+			"${MPV:-mpv}" --keep-open $fx
+		;;
+		(*) dem "${IMAGE_VIEWER:-vimiv}" $fx
+		esac
+	;;
+	(image/x-*)
+		dem "${IMAGE_EDITOR:-gimp}" $fx
+	;;
+	(audio/*)
+		case "$(tty)" in
+		("/dev/tty"*) # No demonizar en tty
+			"${AUDIO_PLAYER:-"${MPV:-mpv}"}" --audio-display=no $fx
+		;;
+		(*) dem "${TERMINAL:-alacritty}" -e "${AUDIO_PLAYER:-"${MPV:-mpv}"}" --audio-display=no $fx
+		esac
+	;;
+	(video/*)
+		case "$(tty)" in
+		("/dev/tty"*) # No demonizar en tty
+			"${VIDEO_PLAYER:-"${MPV:-mpv}"}" $fx
+		;;
+		# TODO: handle video/webm like previewer
+		(*) dem "${VIDEO_PLAYER:-"${MPV:-mpv}"}" $fx
+		esac
+	;;
+	(application/vnd.sqlite3)
+		sqlite3 $fx
+	;;
 #		text/xml)
 #			;;
-		application/zip)
-			case "${f##*.}" in
-				kra)
-					dem krita $f
-					;;
-				*)
-					for f in $fx; do
-						"${OPENER:-xdg-open}" $f
-					done
-				;;
-			esac
-			;;
-		*)
-			case "$f" in
-				# TODO: redo this with mime types, not extensions
-				*.tar.bz | *.tar.bz2 | *.tbz | \
-				*.tbz2 | *.tar.gz | *.tgz | *.tar.lzma | \
-				*.tar.xz | *.txz | *.zip | *.rar | *.iso)
-					mntdir="$f-archivemount"
-					if ! [ -d "$mntdir" ]; then
-						mkdir -- "$mntdir"
-						archivemount "$f" "$mntdir"
-						printf -- "%s\n" "$mntdir" >> "/tmp/__lf_archivemount_$id"
-					else
-						return 1
-					fi
-					lf -remote "send $id cd '$mntdir'"
-					lf -remote "send $id reload"
-					return
-				;;
-			esac
-
-			# Delegate opening to resource opener
-
-			#pwhich() {
-			#	hash "$1" >/dev/null 2>&1 && command -v -- "$1"
-			#}
-			#[ "$OPENER" ] || OPENER=$(pwhich xdg-open)
+	(application/zip)
+		case "${f##*.}" in
+		(kra) dem krita $f ;;
+		(*)
 			for f in $fx; do
 				"${OPENER:-xdg-open}" $f
-				#"${OPENER:-"${EDITOR:-nvim}"}" $f
-				# ${OPENER:-"xdg-open"} $f || "${EDITOR:-"nvim"}" $f
 			done
-			;;
+		esac
+	;;
+	(*)
+		case "$f" in
+		# TODO: redo this with mime types, not extensions
+		( *.tar.bz | *.tar.bz2 | *.tbz | \
+		*.tbz2 | *.tar.gz | *.tgz | *.tar.lzma | \
+		*.tar.xz | *.txz | *.zip | *.rar | *.iso)
+			mntdir="$f-archivemount"
+			if ! [ -d "$mntdir" ]; then
+				mkdir -- "$mntdir"
+				archivemount "$f" "$mntdir"
+				printf -- "%s\n" "$mntdir" >> "/tmp/__lf_archivemount_$id"
+			else
+				return 1
+			fi
+			lf -remote "send $id cd '$mntdir'"
+			lf -remote "send $id reload"
+			return
+		;;
+		esac
+
+		# Delegate opening to resource opener
+
+		#pwhich() {
+		#	hash "$1" >/dev/null 2>&1 && command -v -- "$1"
+		#}
+		#[ "$OPENER" ] || OPENER=$(pwhich xdg-open)
+		for f in $fx; do
+			"${OPENER:-xdg-open}" $f
+			#"${OPENER:-"${EDITOR:-nvim}"}" $f
+			# ${OPENER:-"xdg-open"} $f || "${EDITOR:-"nvim"}" $f
+		done
+		;;
 	esac
 }}
 
@@ -137,85 +135,85 @@ cmd openwith ${{
 
 	# TODO: hacer que se puedan abrir con múltiples a la vez (fzf +m)
 	case "$mime_type" in
-		image/svg+xml | image/png | image/jpeg | image/gif )
-			app=$(fzf <<-EOF
-			vimiv
-			gimp
-			mpv
-			krita
-			inkscape
-			EOF
-			)
-			case "$app" in
-				vimiv) dem vimiv $fx ;;
-				mpv) # Bug: Some JPGs don't show the window unless maximized or fullscreen
-					case "$(tty)" in
-						# Demonizing on tty makes it impossible to quit
-						"/dev/tty"*) "${MPV:-mpv}" --keep-open=yes $fx ;;
-						*) dem "${MPV:-mpv}" --keep-open=yes $fx ;;
-					esac
-				;;
-				gimp) dem gimp $fx ;;
-				krita) dem krita $fx ;;
-				inkscape) dem inkscape $fx ;;
+	(image/svg+xml | image/png | image/jpeg | image/gif )
+		app=$(fzf <<-EOF
+		vimiv
+		gimp
+		mpv
+		krita
+		inkscape
+		EOF
+		)
+		case "$app" in
+		(vimiv) dem vimiv $fx ;;
+		(mpv) # Bug: Some JPGs don't show the window unless maximized or fullscreen
+			case "$(tty)" in
+			# Demonizing on tty makes it impossible to quit
+			("/dev/tty"*) "${MPV:-mpv}" --keep-open=yes $fx ;;
+			(*) dem "${MPV:-mpv}" --keep-open=yes $fx ;;
+			esac
+		;;
+		(gimp) dem gimp $fx ;;
+		(krita) dem krita $fx ;;
+		(inkscape) dem inkscape $fx ;;
+		esac
+	;;
+	(image/x-*)
+		app=$(fzf <<-EOF
+		gimp
+		vimiv
+		mpv
+		EOF
+		)
+		case "$app" in
+		(gimp) dem gimp $fx ;;
+		(vimiv) dem vimiv $fx ;;
+		(mpv)
+			case "$(tty)" in
+			# Demonizing on tty makes it impossible to quit
+			("/dev/tty"*) "${MPV:-mpv}" --keep-open=yes $fx ;;
+			(*) dem "${MPV:-mpv}" --keep-open=yes $fx ;;
 			esac
 			;;
-		image/x-*)
-			app=$(fzf <<-EOF
-			gimp
-			vimiv
-			mpv
-			EOF
-			)
-			case "$app" in
-				gimp) dem gimp $fx ;;
-				vimiv) dem vimiv $fx ;;
-				mpv)
-					case "$(tty)" in
-						# Demonizing on tty makes it impossible to quit
-						"/dev/tty"*) "${MPV:-mpv}" --keep-open=yes $fx ;;
-						*) dem "${MPV:-mpv}" --keep-open=yes $fx ;;
-					esac
-				;;
-			esac
-			;;
-		audio/*)
-			app=$(fzf <<-EOF
-			mpv (force terminal)
-			mpv (background)
-			mpv (background, only audio)
-			mpv (foreground)
-			mpv (force window)
-			EOF
-			)
-			case "$app" in
-				'mpv (force terminal)')
-				dem "${TERMINAL:-alacritty}" -e "$MPV" --audio-display=no $fx
-				;;
-				'mpv (background)')
-				dem "${MPV:-mpv}" $fx
-				;;
-				'mpv (background, only audio)')
-				dem "${MPV:-mpv}" --audio-display=no $fx
-				;;
-				'mpv (foreground)')
-				"${MPV:-mpv}" $fx
-				;;
-				'mpv (force window)')
-				dem "${MPV:-mpv}" --force-window $fx
-				;;
-			esac
-			;;
-		video/*)
-			app=$(fzf <<-EOF
-			mpv
-			kdenlive
-			EOF
-			)
-			case "$app" in
-				mpv) dem "${MPV:-mpv}" $fx ;;
-				kdenlive) dem "${VIDEO_EDITOR:-kdenlive}" $fx ;;
-			esac
+		esac
+	;;
+	(audio/*)
+		app=$(fzf <<-EOF
+		mpv (force terminal)
+		mpv (background)
+		mpv (background, only audio)
+		mpv (foreground)
+		mpv (force window)
+		EOF
+		)
+		case "$app" in
+		('mpv (force terminal)')
+		dem "${TERMINAL:-alacritty}" -e "$MPV" --audio-display=no $fx
+		;;
+		('mpv (background)')
+		dem "${MPV:-mpv}" $fx
+		;;
+		('mpv (background, only audio)')
+		dem "${MPV:-mpv}" --audio-display=no $fx
+		;;
+		('mpv (foreground)')
+		"${MPV:-mpv}" $fx
+		;;
+		('mpv (force window)')
+		dem "${MPV:-mpv}" --force-window $fx
+		;;
+		esac
+	;;
+	(video/*)
+		app=$(fzf <<-EOF
+		mpv
+		kdenlive
+		EOF
+		)
+		case "$app" in
+		(mpv) dem "${MPV:-mpv}" $fx ;;
+		(kdenlive) dem "${VIDEO_EDITOR:-kdenlive}" $fx ;;
+		esac
 	esac
 }}
 
