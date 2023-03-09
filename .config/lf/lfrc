@@ -146,9 +146,8 @@ cmd copyto ${{
 
 
 cmd zlua %{{
-	lf -remote "send ${id} cd '$(z.lua -e $*)'"
+	lf -remote "send ${id} cd \"$(z.lua -e $*)\""
 }}
-
 
 cmd zlua_i ${{
 	dir=$(z.lua -l "$@" \
@@ -157,15 +156,15 @@ cmd zlua_i ${{
 			--preview "lsd --color always --icon always --tree --depth 3 --group-dirs first {+2} 2>/dev/null" \
 		| awk '{print substr($0, index($0,$2))}'
 	)
-	lf -remote "send ${id} cd '${dir}'"
+	lf -remote "send ${id} cd \"${dir}\""
 }}
 
 cmd gsh %{{
-	lf -remote "send ${id} cd '$(g.sh -x $*)'"
+	lf -remote "send ${id} cd \"$(g.sh -x $*)\""
 }}
 
 cmd gsh_fuzzy %{{
-	lf -remote "send ${id} cd '$(_GS_GREP='fzf -f' g.sh -l $* | awk 'NR==1{print $2}')'"
+	lf -remote "send ${id} cd \"$(_GS_GREP='fzf -f' g.sh -l $* | awk 'NR==1{print $2}')\""
 }}
 
 cmd gsh_i ${{
@@ -197,10 +196,12 @@ map <c-p> up
 # File name search
 # Dependency: my 'ffd' script which uses:
 # - fd or find, fzf, tput; bat and lsd (for previews)
-map f     $lf -remote "send $id select '$(ffd -p --depth 1 +m)'"
-map <a-f> $lf -remote "send $id select '$(ffd -p --depth 2 +m)'"
-map <a-F> $lf -remote "send $id select '$(ffd -p --depth 3 +m)'"
-map F     $lf -remote "send $id select '$(ffd -p +m)'"
+map f
+map f1 $lf -remote "send $id select \"$(ffd -p --depth 1 +m)\""  # Fuzzy find 1 level deep
+map f2 $lf -remote "send $id select \"$(ffd -p --depth 2 +m)\""  # Fuzzy find 2 levels deep
+map f3 $lf -remote "send $id select \"$(ffd -p --depth 3 +m)\""  # Fuzzy find 3 levels deep
+map ff broot
+map F  $lf -remote "send $id select \"$(ffd -p +m)\""
 map -  search
 map _  search-back
 map zf find
@@ -209,12 +210,12 @@ map zF find-back
 # File content search
 # Dependency: my 'rgfzf' script which uses:
 # - bash, rg or rga (which has other optional deps), fzf; bat (for previews)
-map rg $lf -remote "send $id select '$(rgfzf -p)'"
-map rG $lf -remote "send $id select '$(rgfzf -p --depth 1)'"
-map rf $lf -remote "send $id select '$(rgfzf -dp)'"
-map rF $lf -remote "send $id select '$(rgfzf -dp --depth 1)'"
-map ra $lf -remote "send $id select '$(rgfzf -dp --rg=rga --depth 1 -s 0.3)'"
-map rA $lf -remote "send $id select '$(rgfzf -dp --rg=rga -s 0.8)'"  # Can be very CPU intensive, use with care
+map rg $lf -remote "send $id select \"$(rgfzf -p)\""
+map rG $lf -remote "send $id select \"$(rgfzf -p --depth 1)\""
+map rf $lf -remote "send $id select \"$(rgfzf -dp)\""
+map rF $lf -remote "send $id select \"$(rgfzf -dp --depth 1)\""
+map ra $lf -remote "send $id select \"$(rgfzf -dp --rg=rga --depth 1 -s 0.3)\""
+map rA $lf -remote "send $id select \"$(rgfzf -dp --rg=rga -s 0.8)\""  # Can be very CPU intensive, use with care
 
 # Main maps
 map d
@@ -253,7 +254,7 @@ map gÑ push :gsh_fuzzy<space>
 map go gsh_i
 map gr cd /
 map gt cd /tmp
-map gs $lf -remote "send $id cd '$SCRIPTS'"
+map gs $lf -remote "send $id cd \"$SCRIPTS\""
 
 
 # Drag commands
