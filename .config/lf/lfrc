@@ -181,13 +181,19 @@ cmd gsh_fuzzy %{{
 }}
 
 cmd gsh_i ${{
-	dir=$(g.sh -l "$@" \
+	selected=$(g.sh -l "$@" \
 		| fzf --nth 2.. --tac +s -e \
 		--header "Directorios marcados" --header-first \
 		--preview "lsd --color always --icon always --tree --depth 2 --group-dirs first {+2} 2>/dev/null" \
 		| awk '{print substr($0, index($0,$2))}'
 	)
-	lf -remote "send ${id} cd '${dir}'"
+	if [ -d "$selected" ]; then
+		lf -remote "send ${id} cd \"${selected}\""
+	elif [ -e "$selected" ]; then
+		lf -remote "send ${id} select \"${selected}\""
+	else
+		>&2 printf "Could not select %s\n" "${selected}"
+	fi
 }}
 
 cmd setbg "$1"
@@ -258,12 +264,12 @@ map <a-u> glob-select *
 # - recursive selection
 
 # Navigation
-map zz push :zlua<space>
+map z<space> push :zlua<space>
 map <a-z> zlua_i
 map <a-g> gsh_i
 map zo zlua_i
-map gñ push :gsh<space>
-map gÑ push :gsh_fuzzy<space>
+map g<space> push :gsh<space>
+map gñ push :gsh_fuzzy<space>
 map go gsh_i
 map gr cd /
 map gt cd /tmp
