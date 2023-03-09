@@ -17,9 +17,10 @@ cmd open ${{
 	}
 
 	real_f="$(readlink -f $f || realpath $f)" \
+
 	mime_type="$(\
-		exiftool -s3 -MIMEType "$real_f" \
-			|| file --dereference -b --mime-type -- "$real_f"
+		exiftool -s3 -MIMEType "$real_f" 2>/dev/null \
+			|| file --dereference -b --mime-type -- "$real_f" 2>/dev/null
 	)"
 
 	case "$mime_type" in
@@ -111,7 +112,7 @@ cmd open ${{
 		#}
 		#[ "$OPENER" ] || OPENER=$(pwhich xdg-open)
 		for f in $fx; do
-			"${OPENER:-xdg-open}" $f
+			dem "${OPENER:-xdg-open}" $f
 			#"${OPENER:-"${EDITOR:-nvim}"}" $f
 			# ${OPENER:-"xdg-open"} $f || "${EDITOR:-"nvim"}" $f
 		done
@@ -221,6 +222,7 @@ cmd openwith ${{
 		"${MPV:-mpv}" $fx
 		;;
 		('mpv (foreground, only audio)')
+		echo
 		"${MPV:-mpv}" --audio-display=no $fx
 		;;
 		('mpv (force window)')
