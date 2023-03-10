@@ -1,10 +1,28 @@
-# lf-config
+<p align="center">
+  <h1 align="center">lf-config</h1>
+  <p align="center">
+    My lf configurations
+  </p>
+</p>
 
-My [lf](https://github.com/gokcehan/lf) configurations
+## Table of Contents
+
+- [📰 Description](#description)
+- [✨ Features](#features)
+- [🚀 Setup](#setup)
+  - [⚙ Main configs](#main-configs)
+  - [🖼 Image previews](image-previews)
+  - [📁 Directory changing](directory-changing)
+  - [🔤 Fonts](#fonts)
+  - [📦 Install dependencies](#install-dependencies)
+  - [📂 File opening](#file-opening)
+- [⌨ Keybindings](#keybindings)
+- [👀 See also](#see-also)
+- [📝 Licence](#licence)
 
 ## 📰 Description
 
-Lf is a fast simple terminal file manager that is
+[Lf](https://github.com/gokcehan/lf) is a fast simple terminal file manager that is
 nonetheless extremely extensible.
 
 These are my personal configurations that make it
@@ -18,6 +36,7 @@ even more powerful and awesome.
 		- Videos
 		- PDF/PostScript files
 		- Fonts
+	- Text files (with syntax highlighting)
 	- Web pages (HTMLs)
 	- Man pages
 	- Binary files
@@ -33,8 +52,8 @@ even more powerful and awesome.
 	- [dragon](https://github.com/mwh/dragon): Drag files to other GUI apps
 	- [g.sh](https://codeberg.org/tplasdio/g.sh): Bookmark files
 	- [z.lua](https://github.com/skywind3000/z.lua): Navigation to frecent directories
-	- [broot](https://github.com/Canop/broot): Fuzzy searh file names
-	- [ffd](https://codeberg.org/tplasdio/scripts/src/branch/main/scripts/ffd): Fuzzy searh file names
+	- [broot](https://github.com/Canop/broot): Fuzzy search file names
+	- [ffd](https://codeberg.org/tplasdio/scripts/src/branch/main/scripts/ffd): Fuzzy search file names
 	- [rgfzf](https://codeberg.org/tplasdio/rgfzf): Fuzzy search file contents
 	- [vidir](https://joeyh.name/code/moreutils/): Bulk file renaming
 	- [trash-cli](https://github.com/andreafrancia/trash-cli): Put files in trash instead of removing them
@@ -86,7 +105,7 @@ For previews:
  - bat (text)
  - uebergzug (images, videos, pdf, fonts)
  - ffmpegthumbnailer (videos)
- - exiftool (metadata/audio, and file detection for .webm files)
+ - exiftool (metadata/audio, and file detection for .webm files) (recommended)
  - jq (json and metadata)
  - lynx (html/web pages)
  - pdftoppm (pdf)
@@ -98,7 +117,6 @@ For previews:
  - Other: stat, cut, sha256sum
 
 For integrations:
- - exiftool (recommended)
  - [dragon](https://github.com/mwh/dragon)
  - [g.sh](https://codeberg.org/tplasdio/g.sh)
  - [z.lua](https://github.com/skywind3000/z.lua)
@@ -181,3 +199,6 @@ Keybinding|Description
 ## 👀 See also
 - [Resource openers](https://wiki.archlinux.org/title/Resource_opener)
 - [XDG_MIME_Applications](https://wiki.archlinux.org/title/XDG_MIME_Applications)
+
+## 📝 Licence
+GLPv3 or later
