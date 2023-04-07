@@ -6,6 +6,7 @@
 # MIME y lanzadores .desktop (e.g. ~/.config/applications/mimeapps.list)
 # Sin embargo, acá se puede programar comportamiento más avanzado basado
 # en más características de los ficheros y/o específicamente para lf
+# Tipos MIME IANA oficiales: https://www.iana.org/assignments/media-types/media-types.xhtml
 
 cmd open ${{
 
@@ -40,7 +41,8 @@ cmd open ${{
 		esac
 	;;
 	( text/* | application/json | application/javascript | \
-	application/pgp-encrypted | inode/x-empty | application/octet-stream )
+	application/pgp-encrypted | inode/x-empty | application/octet-stream | \
+	application/x-gettext-translation )
 		"${EDITOR:-nvim}" $fx
 	;;
 	(image/png | image/jpeg | image/svg+xml | image/gif )
@@ -134,11 +136,15 @@ cmd openwith ${{
 			|| file --dereference -b --mime-type -- "$real_f"
 	)"
 
+	menu_select() {
+		nl -nln | fzf --with-nth 2 | cut -d' ' -f1
+	}
+
 	# TODO: hacer que se puedan abrir con múltiples a la vez (fzf +m)
 	case "$mime_type" in
 	( text/* | application/json | application/javascript | \
 	application/pgp-encrypted | inode/x-empty | application/octet-stream )
-		app=$(fzf <<-\EOF
+		app=$(menu_select <<-\EOF
 		$EDITOR
 		$EDITOR (new terminal)
 		nano
@@ -146,18 +152,15 @@ cmd openwith ${{
 		EOF
 		)
 		case "$app" in
-		('$EDITOR') "${EDITOR:-nvim}" $fx ;;
-		('$EDITOR (new terminal)')
-			dem "${TERMINAL:-alacritty}" -e "$EDITOR" $fx
-		;;
-		(nano) nano $fx ;;
-		('nano (new terminal)')
-			dem "${TERMINAL:-alacritty}" -e nano $fx
+		(1) "${EDITOR:-nvim}" $fx ;;
+		(2) dem "${TERMINAL:-alacritty}" -e "$EDITOR" $fx ;;
+		(3) nano $fx ;;
+		(4) dem "${TERMINAL:-alacritty}" -e nano $fx ;;
 		esac
 	;;
 
 	(image/svg+xml | image/png | image/jpeg | image/gif )
-		app=$(fzf <<-EOF
+		app=$(menu_select <<-\EOF
 		vimiv
 		gimp
 		mpv
@@ -166,30 +169,31 @@ cmd openwith ${{
 		EOF
 		)
 		case "$app" in
-		(vimiv) dem vimiv $fx ;;
-		(mpv) # Bug: Some JPGs don't show the window unless maximized or fullscreen
+		(1) dem vimiv $fx ;;
+		(2) dem gimp $fx ;;
+		(3) # Bug: Some JPGs don't show the window unless maximized or fullscreen
 			case "$(tty)" in
 			# Demonizing on tty makes it impossible to quit
 			("/dev/tty"*) "${MPV:-mpv}" --keep-open=yes $fx ;;
 			(*) dem "${MPV:-mpv}" --keep-open=yes $fx ;;
 			esac
 		;;
-		(gimp) dem gimp $fx ;;
-		(krita) dem krita $fx ;;
-		(inkscape) dem inkscape $fx ;;
+		(4) dem krita $fx ;;
+		(5) dem inkscape $fx ;;
 		esac
 	;;
+
 	(image/x-*)
-		app=$(fzf <<-EOF
+		app=$(menu_select <<-\EOF
 		gimp
 		vimiv
 		mpv
 		EOF
 		)
 		case "$app" in
-		(gimp) dem gimp $fx ;;
-		(vimiv) dem vimiv $fx ;;
-		(mpv)
+		(1) dem gimp $fx ;;
+		(2) dem vimiv $fx ;;
+		(3)
 			case "$(tty)" in
 			# Demonizing on tty makes it impossible to quit
 			("/dev/tty"*) "${MPV:-mpv}" --keep-open=yes $fx ;;
@@ -198,8 +202,9 @@ cmd openwith ${{
 			;;
 		esac
 	;;
+
 	(audio/*)
-		app=$(fzf <<-EOF
+		app=$(menu_select <<-\EOF
 		mpv (force terminal)
 		mpv (background)
 		mpv (background, only audio)
@@ -209,36 +214,24 @@ cmd openwith ${{
 		EOF
 		)
 		case "$app" in
-		('mpv (force terminal)')
-		dem "${TERMINAL:-alacritty}" -e "$MPV" --audio-display=no $fx
-		;;
-		('mpv (background)')
-		dem "${MPV:-mpv}" $fx
-		;;
-		('mpv (background, only audio)')
-		dem "${MPV:-mpv}" --audio-display=no $fx
-		;;
-		('mpv (foreground)')
-		"${MPV:-mpv}" $fx
-		;;
-		('mpv (foreground, only audio)')
-		echo
-		"${MPV:-mpv}" --audio-display=no $fx
-		;;
-		('mpv (force window)')
-		dem "${MPV:-mpv}" --force-window $fx
-		;;
+		(1) dem "${TERMINAL:-alacritty}" -e "$MPV" --audio-display=no $fx ;;
+		(2) dem "${MPV:-mpv}" $fx ;;
+		(3) dem "${MPV:-mpv}" --audio-display=no $fx ;;
+		(4) "${MPV:-mpv}" $fx ;;
+		(5) echo; "${MPV:-mpv}" --audio-display=no $fx ;;
+		(6) dem "${MPV:-mpv}" --force-window $fx ;;
 		esac
 	;;
+
 	(video/*)
-		app=$(fzf <<-EOF
+		app=$(menu_select <<-\EOF
 		mpv
 		kdenlive
 		EOF
 		)
 		case "$app" in
-		(mpv) dem "${MPV:-mpv}" $fx ;;
-		(kdenlive) dem "${VIDEO_EDITOR:-kdenlive}" $fx ;;
+		(1) dem "${MPV:-mpv}" $fx ;;
+		(2) dem "${VIDEO_EDITOR:-kdenlive}" $fx ;;
 		esac
 	esac
 }}
