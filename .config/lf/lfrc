@@ -52,6 +52,8 @@ set shell "bash"
 
 source '~/.config/lf/opener'
 
+%test $LF_LEVEL -eq 1 || >&2 printf "Warning: You're in a nested lf instance!"
+
 cmd mkdir $mkdir -p "$(echo $* | tr ' ' '\ ')"
 cmd trash %trash-put $fx
 
@@ -158,6 +160,33 @@ cmd broot ${{
 	fi
 }}
 
+cmd paste_link %{{
+	IFS='
+'
+	# TODO: reescribir no con los marcados a copiar/pegar,
+	# sino con los seleccionados: $fs
+	set -- $(cat ~/.local/share/lf/files)
+	mode="$1"
+	shift
+	if [ $# -lt 1 ]; then
+		lf -remote "send $id echo no files to link"
+		exit 1
+	fi
+	case "$mode" in
+		# symbolically copy mode is indicating a soft link
+		copy) ln -sr -t . -- "$@";;
+		# while a move mode is indicating a hard link
+		move) ln -t . -- "$@";;
+	esac \
+		|| exit $?
+	rm ~/.local/share/lf/files
+	lf -remote "send clear"
+}}
+
+cmd follow_link %{{
+	lf -remote "send ${id} select \"$(readlink $f)\""
+}}
+
 cmd zlua %{{
 	lf -remote "send ${id} cd \"$(z.lua -e $*)\""
 }}
@@ -194,6 +223,10 @@ cmd gsh_i ${{
 	else
 		>&2 printf "Could not select %s\n" "${selected}"
 	fi
+}}
+
+cmd stop ${{
+	kill -TSTP $(ps -p $$ -o 'ppid=')
 }}
 
 cmd setbg "$1"
@@ -245,6 +278,7 @@ map <a-D> shred
 map E extract
 #map C copyto
 #map M moveto
+map P paste_link
 map <a-n> push :mkdir<space>
 map <a-t> push $touch<space>
 map <a-r> reload
@@ -271,6 +305,7 @@ map zo zlua_i
 map g<space> push :gsh<space>
 map gñ push :gsh_fuzzy<space>
 map go gsh_i
+map gl follow_link
 map gr cd /
 map gt cd /tmp
 map gs $lf -remote "send $id cd \"$SCRIPTS\""
@@ -315,6 +350,8 @@ map b $vidir   # Bulkrename in $EDITOR, 'vidir' from more-utils
 map B $find | vidir -
 
 map V push $"$EDITOR"<space>
+
+map <c-z> stop
 
 # New forked terminal in current directory
 map W &{ nohup "${TERMINAL:-alacritty}" >/dev/null 2>&1& }
