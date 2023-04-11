@@ -137,7 +137,7 @@ cmd openwith ${{
 	)"
 
 	menu_select() {
-		nl -nln | fzf --with-nth 2 | cut -d' ' -f1
+		nl -nln | fzf --with-nth 2.. | cut -d' ' -f1
 	}
 
 	# TODO: hacer que se puedan abrir con múltiples a la vez (fzf +m)
