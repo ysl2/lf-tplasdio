@@ -185,6 +185,7 @@ fi      📄       # FILE
 *.bashprofile          "⚙ "
 *favicon.ico           " "
 *license               "📜"
+*licence               "📜"
 *node_modules          " "
 *react.jsx             " "
 *procfile              " "
@@ -207,6 +208,7 @@ fi      📄       # FILE
 *Dropbox                " "
 *.DS_Store              "⚙ "
 *LICENSE                "📜"
+*LICENCE                "📜"
 *COPYING                "📜"
 *React.jsx              " "
 *Procfile               " "
@@ -296,6 +298,8 @@ Vagrantfile            " "
 *.jpe    📸
 *.mjpg   📸
 *.mjpeg  📸
+*.jxl   "🖼 "
+*.JXL   "🖼 "
 *.svg   "🗺 "
 *.svgz  "🗺 "
 *.bmp   "🖼 "
@@ -367,6 +371,10 @@ Vagrantfile            " "
 
 # other extensions
 *.elf      " "
+*.exe      " "
+*.appx     " "
+*.msi      " "
+*.app      " "
 *.pdf      " "
 *.PDF      " "
 *.ps       " "
@@ -442,5 +450,6 @@ Vagrantfile            " "
 *.rom       🎮
 *.xex       🎮
 *.jrz       🎮
+*.efi       " "
 
 # vim:ft=conf
