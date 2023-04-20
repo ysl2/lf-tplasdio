@@ -3,6 +3,11 @@
   <p align="center">
     My lf configurations
   </p>
+  <img
+    width="1000"
+    src="https://codeberg.org/tplasdio/lf-config/raw/branch/main/media/lf-config.avif"
+    alt="lf screenshot"
+  />
 </p>
 
 ## Table of Contents
