@@ -45,16 +45,16 @@ cmd open ${{
 	application/x-gettext-translation )
 		"${EDITOR:-nvim}" $fx
 	;;
-	(image/png | image/jpeg | image/svg+xml | image/gif )
+	(image/x-*)
+		dem "${IMAGE_EDITOR:-gimp}" $fx
+	;;
+	(image/* )
 		case "$(tty)" in
 		("/dev/tty"*) # En tty imágenes pueden ser mostradas con mpv
 			"${MPV:-mpv}" --keep-open $fx
 		;;
 		(*) dem "${IMAGE_VIEWER:-vimiv}" $fx
 		esac
-	;;
-	(image/x-*)
-		dem "${IMAGE_EDITOR:-gimp}" $fx
 	;;
 	(audio/*)
 		case "$(tty)" in
@@ -122,6 +122,8 @@ cmd open ${{
 	esac
 }}
 
+ # Bug: In my AwesomeWM some JPGs or webm don't show the window until is tiled
+
 cmd openwith ${{
 
 	dem() {
@@ -171,7 +173,7 @@ cmd openwith ${{
 		case "$app" in
 		(1) dem vimiv $fx ;;
 		(2) dem gimp $fx ;;
-		(3) # Bug: Some JPGs don't show the window unless maximized or fullscreen
+		(3)
 			case "$(tty)" in
 			# Demonizing on tty makes it impossible to quit
 			("/dev/tty"*) "${MPV:-mpv}" --keep-open=yes $fx ;;
@@ -226,12 +228,16 @@ cmd openwith ${{
 	(video/*)
 		app=$(menu_select <<-\EOF
 		mpv
+		mpv (background, only audio)
+		mpv (foreground, only audio)
 		kdenlive
 		EOF
 		)
 		case "$app" in
 		(1) dem "${MPV:-mpv}" $fx ;;
-		(2) dem "${VIDEO_EDITOR:-kdenlive}" $fx ;;
+		(2) dem "${MPV:-mpv}" --video=no --audio-display=no $fx ;;
+		(3) echo; "${MPV:-mpv}" --video=no --audio-display=no $fx ;;
+		(4) dem "${VIDEO_EDITOR:-kdenlive}" $fx ;;
 		esac
 	esac
 }}
