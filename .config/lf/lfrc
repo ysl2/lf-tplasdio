@@ -42,6 +42,8 @@ set waitmsg "\033[1;31m⏎\033[m"
 set timefmt "02/01/2006 15:04:05 "
 set infotimefmtnew '02/01 15:04'
 set infotimefmtold '02/01/06'
+set errorfmt "\033[1;31m"
+set numberfmt "\033[38;2;75;87;116m"
 set dircounts
 set tabstop 4
 set scrolloff 5
@@ -49,6 +51,7 @@ set wrapscroll
 set shellopts '-eu'
 set ifs "\n"
 set shell "bash"
+set ruler 'df:acc:progress:selection:filter:ind'
 set cursorpreviewfmt "\033[7m"
 
 source '~/.config/lf/opener'
@@ -271,6 +274,8 @@ map ra $lf -remote "send $id select \"$(rgfzf -dp --rg=rga --depth 1 -s 0.3)\""
 map rA $lf -remote "send $id select \"$(rgfzf -dp --rg=rga -s 0.8)\""  # Can be very CPU intensive, use with care
 
 # Main maps
+map Km maps  # List normal mode mappings
+map Kc cmaps  # List command mode mappings
 map d
 map dd cut
 map D delete
@@ -310,7 +315,8 @@ map gl follow_link
 map gr cd /
 map gt cd /tmp
 map gs $lf -remote "send $id cd \"$SCRIPTS\""
-
+map J jumps
+# navigate the jump list with "#[", "#]"
 
 # Drag commands
 # Dependencies: dragon-drag-and-drop and my 'drag' script which uses it
