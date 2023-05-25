@@ -49,6 +49,7 @@ set wrapscroll
 set shellopts '-eu'
 set ifs "\n"
 set shell "bash"
+set cursorpreviewfmt "\033[7m"
 
 source '~/.config/lf/opener'
 
@@ -341,11 +342,11 @@ cmap <a-,> cmd-delete
 # Renaming
 map c
 map r
-map A rename  # At the very end
-map cc push A<c-u>  # New rename
-map I push A<c-a>  # At the very beginning
-map i push A<a-b><a-b><a-f>  # Before extension
-map a push A<a-b>  # After extension
+map i rename  # Before extension
+map A push i<a-A>  # At the very end
+map cc push i<a-A><c-u>  # New rename
+map I push i<c-a>  # At the very beginning
+map a push i<a-A><a-b>  # After extension
 map b $vidir   # Bulkrename in $EDITOR, 'vidir' from more-utils
 map B $find | vidir -
 
