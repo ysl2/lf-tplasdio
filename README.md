@@ -108,7 +108,7 @@ Of course, install the ones that fit for you
 
 For previews:
  - bat (text)
- - uebergzug (images, videos, pdf, fonts)
+ - ueberzug (images, videos, pdf, fonts)
  - ffmpegthumbnailer (videos)
  - exiftool (metadata/audio, and file detection for .webm files) (recommended)
  - jq (json and metadata)
@@ -204,6 +204,14 @@ Keybinding|Description
 ## 👀 See also
 - [Resource openers](https://wiki.archlinux.org/title/Resource_opener)
 - [XDG_MIME_Applications](https://wiki.archlinux.org/title/XDG_MIME_Applications)
+
+## ⏭  Next steps
+Since ueberzug is currently unmaintained, eventually I might migrate
+to a [libsixel](https://saitoha.github.io/libsixel/) solution. See:
+
+- [Sixel supporting terminals](https://www.arewesixelyet.com/)
+- [lf sixel fork](https://github.com/horriblename/lf)
+- [lf sixel config](https://github.com/horriblename/lfimg-sixel)
 
 ## 📝 Licence
 GLPv3 or later
