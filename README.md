@@ -36,7 +36,7 @@ even more powerful and awesome.
 ## ✨ Features
 
 - Advanced Preview Handling:
-	- Image previews via [ueberzug](https://github.com/seebye/ueberzug) for:
+	- Image previews via [ueberzug](https://github.com/ueber-devel/ueberzug) for:
 		- Images (raster and SVGs)
 		- Videos
 		- PDF/PostScript files
@@ -73,7 +73,7 @@ Copy the `.config/lf/*` files to your lf configuration directory.
 ### 🖼 Image previews
 
 To get image previews you will also need to:
-- Install [ueberzug](https://github.com/seebye/ueberzug)
+- Install [ueberzug](https://github.com/ueber-devel/ueberzug)
 - Start `lf` through the wrapper `lfub` script (in `.local/bin/lfub`).
 
 You may alias it in your shell:
@@ -107,42 +107,42 @@ terminal with the [Fira Code](https://github.com/ryanoasis/nerd-fonts/tree/maste
 Of course, install the ones that fit for you
 
 For previews:
- - bat (text)
- - ueberzug (images, videos, pdf, fonts)
- - ffmpegthumbnailer (videos)
- - exiftool (metadata/audio, and file detection for .webm files) (recommended)
- - jq (json and metadata)
- - lynx (html/web pages)
- - pdftoppm (pdf)
- - odt2txt (odt)
- - convert from imagemagick (fonts)
- - atool (archives)
- - gpg (PGP encrypted files)
- - man (troff manuals)
+ - [`bat`](https://github.com/sharkdp/bat) (text)
+ - [`ueberzug`](https://github.com/ueber-devel/ueberzug) (images, videos, pdf, fonts)
+ - [`ffmpegthumbnailer`](https://github.com/dirkvdb/ffmpegthumbnailer) (videos)
+ - [`exiftool`](https://exiftool.org/) (metadata/audio, and file detection for .webm files) (recommended)
+ - [`jq`](https://stedolan.github.io/jq/) (json and metadata)
+ - [`lynx`](https://lynx.invisible-island.net/) (html/web pages)
+ - `pdftoppm` from [poppler](https://poppler.freedesktop.org/) (pdf)
+ - [`odt2txt`](https://github.com/dstosberg/odt2txt/) (odt)
+ - `convert` from [imagemagick](https://www.imagemagick.org/) (fonts)
+ - [`atool`](https://www.nongnu.org/atool) (archives)
+ - `gpg` (PGP encrypted files)
+ - `man` (troff manuals)
  - Other: stat, cut, sha256sum
 
 For integrations:
- - [dragon](https://github.com/mwh/dragon)
- - [g.sh](https://codeberg.org/tplasdio/g.sh)
- - [z.lua](https://github.com/skywind3000/z.lua)
- - [broot](https://github.com/Canop/broot)
- - [ffd](https://codeberg.org/tplasdio/scripts/src/branch/main/scripts/ffd)
- - [rgfzf](https://codeberg.org/tplasdio/rgfzf)
- - [vidir](https://joeyh.name/code/moreutils/)
- - [trash-cli](https://github.com/andreafrancia/trash-cli)
- - shred/[rshred](https://codeberg.org/tplasdio/rshred)
+ - [`dragon`](https://github.com/mwh/dragon), my [drag](https://codeberg.org/tplasdio/scripts/src/branch/main/scripts/drag) script
+ - [`g.sh`](https://codeberg.org/tplasdio/g.sh)
+ - [`z.lua`](https://github.com/skywind3000/z.lua)
+ - [`broot`](https://github.com/Canop/broot)
+ - [`ffd`](https://codeberg.org/tplasdio/scripts/src/branch/main/scripts/ffd)
+ - [`rgfzf`](https://codeberg.org/tplasdio/rgfzf)
+ - [`vidir`](https://joeyh.name/code/moreutils/)
+ - [`trash-cli`](https://github.com/andreafrancia/trash-cli)
+ - `shred`/[`rshred`](https://codeberg.org/tplasdio/rshred)
 
 For opening:
- - exiftool (recommended)
- - xdg-open or set `$OPENER`
- - nvim or set `$EDITOR`
- - alacritty or set `$TERMINAL`
- - zathura or set `$READER`
- - mpv or set `$VIDEO_PLAYER`
- - mpv or set `$AUDIO_PLAYER`
- - gimp or set `$IMAGE_EDITOR`
- - vimiv or set `$IMAGE_VIEWER`
- - kdenlive or set `$VIDEO_EDITOR`
+ - `exiftool` (recommended)
+ - `xdg-open` or set `$OPENER`
+ - `nvim` or set `$EDITOR`
+ - `alacritty` or set `$TERMINAL`
+ - `zathura` or set `$READER`
+ - `mpv` or set `$VIDEO_PLAYER`
+ - `mpv` or set `$AUDIO_PLAYER`
+ - `gimp` or set `$IMAGE_EDITOR`
+ - `vimiv` or set `$IMAGE_VIEWER`
+ - `kdenlive` or set `$VIDEO_EDITOR`
 
 ### 📂 File opening
 
@@ -206,8 +206,9 @@ Keybinding|Description
 - [XDG_MIME_Applications](https://wiki.archlinux.org/title/XDG_MIME_Applications)
 
 ## ⏭  Next steps
-Since ueberzug is currently unmaintained, eventually I might migrate
-to a [libsixel](https://saitoha.github.io/libsixel/) solution. See:
+This ueberzug fork only supports X11 AFAIK, eventually I might migrate to
+a version that supports Wayland like ueberzugpp or to a
+[libsixel](https://saitoha.github.io/libsixel/) solution. See:
 
 - [Sixel supporting terminals](https://www.arewesixelyet.com/)
 - [lf sixel fork](https://github.com/horriblename/lf)
